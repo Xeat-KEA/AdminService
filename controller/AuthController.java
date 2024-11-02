@@ -17,13 +17,11 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
-        authService.signup(signupRequest);
-        return ResponseEntity.ok("Signup successful");
+        return ResponseEntity.ok(authService.signup(signupRequest));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        String token = authService.login(loginRequest);
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok( authService.login(loginRequest));
     }
 }
