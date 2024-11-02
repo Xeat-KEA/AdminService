@@ -1,6 +1,5 @@
 package org.codingtext.admin.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.dto.LoginRequest;
 import org.codingtext.admin.dto.SignupRequest;
@@ -22,6 +21,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok( authService.login(loginRequest));
+        return ResponseEntity.ok(authService.login(loginRequest));
+    }
+
+    @GetMapping("/none")
+    public ResponseEntity<?> findNoneAccount() {
+        return ResponseEntity.ok(authService.findNoneAccount());
     }
 }

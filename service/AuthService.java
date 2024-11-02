@@ -13,6 +13,9 @@ import org.codingtext.admin.repository.AdminRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -64,5 +67,16 @@ public class AuthService {
                 .build();
 
         return new LoginResponse(new JwtToken(accessToken, null), adminResponse);
+    }
+
+    public List<AdminResponse> findNoneAccount() {
+        // DB에서 NONE 역할의 Admin을 조회하고 DTO로 변환
+        return adminRepository.findByAdminRole(AdminRole.NONE).stream()
+                .map(admin -> AdminResponse.builder()
+                        .id(admin.getId())
+                        .email(admin.getEmail())
+                        .adminRole(admin.getAdminRole()) // Enum을 문자열로 변환
+                        .build())
+                .collect(Collectors.toList());
     }
 }
