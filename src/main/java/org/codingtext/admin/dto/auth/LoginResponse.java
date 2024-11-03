@@ -1,6 +1,7 @@
-package org.codingtext.admin.dto;
+package org.codingtext.admin.dto.auth;
 
 import lombok.*;
+import org.codingtext.admin.dto.AdminResponse;
 import org.codingtext.admin.jwt.JwtToken;
 
 

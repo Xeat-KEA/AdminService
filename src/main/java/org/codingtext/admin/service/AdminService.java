@@ -4,7 +4,6 @@ import org.codingtext.admin.controller.feignclient.CodeServiceClient;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
 import org.codingtext.admin.dto.AdminResponse;
-import org.codingtext.admin.dto.ProblemListResponse;
 import org.codingtext.admin.dto.PermitRequest;
 import org.codingtext.admin.dto.PermitResponse;
 
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminService {
     private final AdminRepository adminRepository;
-    private final CodeServiceClient codeServiceClient;
 
     public List<AdminResponse> findNoneAccount() {
         // DB에서 NONE 역할의 Admin을 조회하고 DTO로 변환
@@ -87,9 +85,5 @@ public class AdminService {
             throw new PermissionDeniedException("Only ROOT accounts can delete admins.");
         }
         //TODO: root가 자기자신을 삭제하는 경우에 대한 처리
-    }
-
-    public List<ProblemListResponse> findAllCodeProblems() {
-        return codeServiceClient.getProblemList();
     }
 }
