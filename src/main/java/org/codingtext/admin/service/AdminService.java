@@ -66,4 +66,19 @@ public class AdminService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public String deleteAdmin(Long rootAdminId, Long adminId) {
+        Admin rootAdmin = adminRepository.findById(rootAdminId)
+                .orElseThrow(() -> new RuntimeException("root admin not found"));
+        Admin generalAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Admin to delete not found"));
+        // 요청자가 ROOT 권한을 가지고 있는 경우에만 삭제
+        if (rootAdmin.getAdminRole() == AdminRole.ROOT) {
+            adminRepository.delete(generalAdmin);
+            return "Admin with ID " + adminId + " has been deleted.";
+        } else {
+            throw new RuntimeException("Only ROOT accounts can delete admins.");
+        }
+        //TODO: root가 자기자신을 삭제하는 경우에 대한 처리
+    }
 }
