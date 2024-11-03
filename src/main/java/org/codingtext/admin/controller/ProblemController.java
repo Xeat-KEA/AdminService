@@ -23,4 +23,9 @@ public class ProblemController {
     public ResponseEntity<?> addNewProblem(@RequestBody ProblemRequest problemRequest) {
         return new ResponseEntity<>(problemService.createProblem(problemRequest), HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/{codeId}")
+    public ResponseEntity<?> deleteProblem(@PathVariable Long codeId) {
+        return ResponseEntity.ok(problemService.deleteProblem(codeId));
+    }
 }
