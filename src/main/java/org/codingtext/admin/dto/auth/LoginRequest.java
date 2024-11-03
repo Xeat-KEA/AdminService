@@ -1,4 +1,4 @@
-package org.codingtext.admin.dto;
+package org.codingtext.admin.dto.auth;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SignupRequest {
+public class LoginRequest {
     private String email;
     private String password;
 }
