@@ -37,4 +37,11 @@ public class AdminController {
         String message = adminService.deleteAdmin(rootAdminId, adminId);
         return ResponseEntity.ok(message);
     }
+
+    @GetMapping("/codes")
+    public ResponseEntity<?> findAllCodeProblems() {
+        //TODO: feign client를 이용해 가져온 code list를 반환
+        return ResponseEntity.ok(adminService.findAllCodeProblems());
+    }
+
 }
