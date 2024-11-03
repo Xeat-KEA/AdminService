@@ -28,9 +28,10 @@ public class JwtProvider {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createToken(String email) {
+    public String createToken(long id, String email) {
         return Jwts.builder()
-                .subject(email)
+                .subject(String.valueOf(id))
+                .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(secretKey)

@@ -3,10 +3,7 @@ package org.codingtext.admin.service;
 import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
-import org.codingtext.admin.dto.LoginRequest;
-import org.codingtext.admin.dto.LoginResponse;
-import org.codingtext.admin.dto.SignupRequest;
-import org.codingtext.admin.dto.AdminResponse;
+import org.codingtext.admin.dto.*;
 import org.codingtext.admin.jwt.JwtProvider;
 import org.codingtext.admin.jwt.JwtToken;
 import org.codingtext.admin.repository.AdminRepository;
@@ -57,7 +54,7 @@ public class AuthService {
         }
 
         // JWT 토큰 생성
-        String accessToken = jwtProvider.createToken(admin.getEmail());
+        String accessToken = jwtProvider.createToken(admin.getId(),admin.getEmail());
 
         // Admin 정보를 포함한 응답 객체 생성
         AdminResponse adminResponse = AdminResponse.builder()
@@ -78,5 +75,35 @@ public class AuthService {
                         .adminRole(admin.getAdminRole()) // Enum을 문자열로 변환
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public PermitResponse processAdminRequest(long adminId, PermitRequest permitRequest) {
+        // root 조회
+        Admin rootAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Root admin not found"));
+        // none 조회
+        Admin noneAdmin = adminRepository.findById(permitRequest.getAdminId())
+                .orElseThrow(() -> new RuntimeException("None admin not found"));
+        // ROLE이 ROOT인 경우에만 처리
+        if (rootAdmin.getAdminRole() == AdminRole.ROOT) {
+            if (permitRequest.getIsPermit()) {
+                // NONE 관리자 권한을 GENERAL로 변경
+                adminRepository.save(noneAdmin.toBuilder()
+                        .adminRole(AdminRole.GENERAL)
+                        .build());
+                return PermitResponse.builder()
+                        .adminId(permitRequest.getAdminId())
+                        .message("권한이 GENERAL로 변경되었습니다.")
+                        .build();
+            } else {
+                adminRepository.deleteById(permitRequest.getAdminId());
+                return PermitResponse.builder()
+                        .adminId(permitRequest.getAdminId())
+                        .message("해당 계정이 삭제되었습니다.")
+                        .build();
+            }
+        } else {
+            throw new RuntimeException("Only ROOT accounts can process this request.");
+        }
     }
 }
