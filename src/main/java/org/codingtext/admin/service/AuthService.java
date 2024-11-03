@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
 import org.codingtext.admin.dto.*;
+import org.codingtext.admin.error.exception.AdminNotFoundException;
+import org.codingtext.admin.error.exception.InvalidPasswordException;
+import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.jwt.JwtProvider;
 import org.codingtext.admin.jwt.JwtToken;
 import org.codingtext.admin.repository.AdminRepository;
@@ -39,16 +42,16 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
         // 이메일로 Admin 조회
         Admin admin = adminRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new AdminNotFoundException("Admin not found"));
 
         // 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(loginRequest.getPassword(), admin.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidPasswordException("Password does not match");
         }
 
         // 관리자 역할이 NONE인지 확인
         if (admin.getAdminRole() == AdminRole.NONE) {
-            throw new RuntimeException("Account is not approved for login");
+            throw new PermissionDeniedException("Account is not approved for login");
         }
 
         // JWT 토큰 생성
