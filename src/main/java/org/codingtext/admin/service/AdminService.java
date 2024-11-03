@@ -84,4 +84,8 @@ public class AdminService {
         }
         //TODO: root가 자기자신을 삭제하는 경우에 대한 처리
     }
+
+    public Object findAllCodeProblems() {
+        return null;
+    }
 }
