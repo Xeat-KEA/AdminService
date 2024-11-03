@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/admins")
 public class AdminController {
     private final AdminService adminService;
 
@@ -27,5 +27,14 @@ public class AdminController {
     @GetMapping("/list")
     public ResponseEntity<?> findAllAdmins() {
         return ResponseEntity.ok(adminService.findAllAdmins());
+    }
+
+    @DeleteMapping("/{adminId}")
+    public ResponseEntity<String> deleteAdmin(
+            @RequestHeader("AdminId") Long rootAdminId,
+            @PathVariable Long adminId) {
+        // 요청을 보낸 사용자의 권한 확인 후 삭제
+        String message = adminService.deleteAdmin(rootAdminId, adminId);
+        return ResponseEntity.ok(message);
     }
 }
