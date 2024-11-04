@@ -11,6 +11,7 @@ import org.codingtext.admin.dto.PermitResponse;
 import org.codingtext.admin.error.exception.AdminNotFoundException;
 import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class AdminService {
         //TODO: root가 자기자신을 삭제하는 경우에 대한 처리
     }
 
-    public List<ProblemListResponse> findAllCodeProblems() {
-        return codeServiceClient.getProblemList();
+    public Page<ProblemListResponse> findAllCodeProblems(int page, int size) {
+        return codeServiceClient.getProblemList(page, size);
     }
 }

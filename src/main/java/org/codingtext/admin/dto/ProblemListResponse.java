@@ -1,27 +1,22 @@
 package org.codingtext.admin.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import java.util.List;
+import java.time.LocalDateTime;;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProblemListResponse {
-    private int totalItems;
-    private int totalPages;
-    private List<ProblemDto> problems;
-
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class ProblemDto {
-        private Long id;
-        private String title;
-        private String difficulty;
-        private String algorithm;
-        private String permission;
-    }
+    private Long codeId;
+    private String title;
+    private String content;
+    private String difficulty;
+    private String algorithm;
+    private String registerStatus;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+    private double correctRate;
 }

@@ -39,9 +39,11 @@ public class AdminController {
     }
 
     @GetMapping("/codes")
-    public ResponseEntity<?> findAllCodeProblems() {
+    public ResponseEntity<?> findAllCodeProblems(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         //TODO: feign client를 이용해 가져온 code list를 반환
-        return ResponseEntity.ok(adminService.findAllCodeProblems());
+        return ResponseEntity.ok(adminService.findAllCodeProblems(page, size));
     }
 
 }
