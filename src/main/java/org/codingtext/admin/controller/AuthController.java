@@ -2,9 +2,9 @@ package org.codingtext.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 
-import org.codingtext.admin.dto.LoginRequest;
+import org.codingtext.admin.dto.auth.LoginRequest;
 
-import org.codingtext.admin.dto.SignupRequest;
+import org.codingtext.admin.dto.auth.SignupRequest;
 import org.codingtext.admin.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
