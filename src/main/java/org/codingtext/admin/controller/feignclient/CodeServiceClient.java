@@ -4,6 +4,7 @@ import org.codingtext.admin.dto.problem.ProblemListResponse;
 import org.codingtext.admin.dto.problem.ProblemRequest;
 import org.codingtext.admin.dto.problem.ProblemResponse;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,5 +17,5 @@ public interface CodeServiceClient {
     List<ProblemListResponse> getProblemList();
 
     @PostMapping("/codes")
-    ProblemResponse createProblem(@RequestBody ProblemRequest problemRequest);
+    ResponseEntity<ProblemResponse> createProblem(@RequestBody ProblemRequest problemRequest);
 }
