@@ -1,16 +1,21 @@
 package org.codingtext.admin.service;
+
 import lombok.RequiredArgsConstructor;
-import org.codingtext.admin.controller.feignclient.CodeServiceClient;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
+import org.codingtext.admin.domain.UserReport;
 import org.codingtext.admin.dto.AdminResponse;
 import org.codingtext.admin.dto.PermitRequest;
 import org.codingtext.admin.dto.PermitResponse;
-
+import org.codingtext.admin.dto.report.ReportArticleRequest;
+import org.codingtext.admin.dto.report.ReportReplyRequest;
 import org.codingtext.admin.error.exception.AdminNotFoundException;
 import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
+import org.codingtext.admin.repository.UserReportRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminService {
     private final AdminRepository adminRepository;
+    private final UserReportRepository userReportRepository;
 
     public List<AdminResponse> findNoneAccount() {
         // DB에서 NONE 역할의 Admin을 조회하고 DTO로 변환
@@ -84,6 +90,29 @@ public class AdminService {
         } else {
             throw new PermissionDeniedException("Only ROOT accounts can delete admins.");
         }
-        //TODO: root가 자기자신을 삭제하는 경우에 대한 처리
+    }
+
+
+    @Transactional
+    public void saveReportArticle(ReportArticleRequest reportArticleRequest) {
+        userReportRepository.save(UserReport.builder()
+                .reporterId(reportArticleRequest.getReporterId())
+                .blogId(reportArticleRequest.getBlogId())
+                .articleId(reportArticleRequest.getArticleId())
+                .reportType(reportArticleRequest.getReportType())
+                .customDescription(reportArticleRequest.getCustomDescription())
+                .build());
+    }
+
+    @Transactional
+    public void saveReportReply(ReportReplyRequest reportReplyRequest) {
+        userReportRepository.save(UserReport.builder()
+                .reporterId(reportReplyRequest.getReporterId())
+                .blogId(reportReplyRequest.getBlogId())
+                .articleId(reportReplyRequest.getArticleId())
+                .replyId(reportReplyRequest.getReplyId())
+                .reportType(reportReplyRequest.getReportType())
+                .customDescription(reportReplyRequest.getCustomDescription())
+                .build());
     }
 }
