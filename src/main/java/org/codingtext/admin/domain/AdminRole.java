@@ -12,6 +12,4 @@ public enum AdminRole {
 
 
     private final String description;
-
-
 }
