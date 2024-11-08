@@ -1,6 +1,8 @@
 package org.codingtext.admin.controller;
 import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.dto.PermitRequest;
+import org.codingtext.admin.dto.report.ReportReplyRequest;
+import org.codingtext.admin.dto.report.ReportArticleRequest;
 import org.codingtext.admin.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +38,17 @@ public class AdminController {
         // 요청을 보낸 사용자의 권한 확인 후 삭제
         String message = adminService.deleteAdmin(rootAdminId, adminId);
         return ResponseEntity.ok(message);
+    }
+
+    @PostMapping("/report/articles")
+    public ResponseEntity<?> saveReportArticle(@RequestBody ReportArticleRequest reportArticleRequest) {
+        adminService.saveReportArticle(reportArticleRequest);
+        return ResponseEntity.ok("Report Article saved successfully.");
+    }
+
+    @PostMapping("/report/replies")
+    public ResponseEntity<?> saveReport(@RequestBody ReportReplyRequest reportReplyRequest) {
+        adminService.saveReportReply(reportReplyRequest);
+        return ResponseEntity.ok("Report Reply saved successfully.");
     }
 }
