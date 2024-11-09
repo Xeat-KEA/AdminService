@@ -14,6 +14,9 @@ import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
 import org.codingtext.admin.repository.AnnounceRepository;
 import org.codingtext.admin.repository.UserReportRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AdminService {
     private final AdminRepository adminRepository;
     private final UserReportRepository userReportRepository;
@@ -42,6 +46,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public PermitResponse processAdminRequest(long adminId, PermitRequest permitRequest) {
         // root 조회
         Admin rootAdmin = adminRepository.findById(adminId)
@@ -83,6 +88,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public String deleteAdmin(Long rootAdminId, Long adminId) {
         Admin rootAdmin = adminRepository.findById(rootAdminId)
                 .orElseThrow(() -> new AdminNotFoundException("root admin not found"));
@@ -122,8 +128,10 @@ public class AdminService {
     }
 
     // 게시글 신고 내역 조회
-    public List<ArticleResponse> findReportArticles() {
-        List<UserReport> reports = userReportRepository.findAll();
+    public Page<ArticleResponse> findReportArticles(Pageable pageable) {
+        // 페이징된 UserReport 조회
+        Page<UserReport> reportsPage = userReportRepository.findAll(pageable);
+        List<UserReport> reports = reportsPage.getContent();
 
         // articleId와 userId 리스트 추출
         List<Long> articleIds = reports.stream()
@@ -141,8 +149,8 @@ public class AdminService {
         Map<Long, String> userIdToNicknameMap = userServiceClient.getNicknamesByIds(userIds).stream()
                 .collect(Collectors.toMap(NicknameResponse::getId, NicknameResponse::getNickname));
 
-        // ArticleResponse 생성 및 반환
-        return reports.stream()
+        // ArticleResponse 리스트 생성
+        List<ArticleResponse> articleResponses = reports.stream()
                 .map(userReport -> ArticleResponse.builder()
                         .articleId(userReport.getArticleId())
                         .articleTitle(articleIdToTitleMap.getOrDefault(userReport.getArticleId(), "Unknown Title"))
@@ -151,13 +159,15 @@ public class AdminService {
                         .reportDate(userReport.getCreatedAt().toLocalDate())
                         .build())
                 .collect(Collectors.toList());
+
+        // PageImpl을 사용해 Page<ArticleResponse> 생성 및 반환
+        return new PageImpl<>(articleResponses, pageable, reportsPage.getTotalElements());
     }
 
+    public Page<ReplyResponse> findReportReplies(Pageable pageable) {
+        Page<UserReport> reportsPage = userReportRepository.findAll(pageable);
+        List<UserReport> reports = reportsPage.getContent(); // 현재 페이지의 데이터 목록
 
-    public List<ReplyResponse> findReportReplies() {
-        List<UserReport> reports = userReportRepository.findAll();
-
-        // articleId와 userId 리스트 추출
         List<Long> replyIds = reports.stream()
                 .map(UserReport::getReplyId)
                 .distinct()
@@ -172,8 +182,7 @@ public class AdminService {
         Map<Long, String> userIdToNicknameMap = userServiceClient.getNicknamesByIds(userIds).stream()
                 .collect(Collectors.toMap(NicknameResponse::getId, NicknameResponse::getNickname));
 
-        // ArticleResponse 생성 및 반환
-        return reports.stream()
+        List<ReplyResponse> replyResponses = reports.stream()
                 .map(userReport -> ReplyResponse.builder()
                         .replyId(userReport.getReplyId())
                         .replyTitle(replyIdToTitleMap.getOrDefault(userReport.getReplyId(), "Unknown Title"))
@@ -182,8 +191,12 @@ public class AdminService {
                         .reportDate(userReport.getCreatedAt().toLocalDate())
                         .build())
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(replyResponses, pageable, reportsPage.getTotalElements());
     }
 
+
+    @Transactional
     public void saveAnnounce(AnnounceRequest announceRequest) {
         // Admin 존재 여부 확인
         Admin admin = adminRepository.findById(announceRequest.getAdminId())
@@ -196,4 +209,20 @@ public class AdminService {
                 .admin(admin)
                 .build());
     }
+
+    public Page<AnnounceResponse> findAnnouncements(Pageable pageable) {
+        Page<Announce> announcePage = announceRepository.findAll(pageable);
+
+        List<AnnounceResponse> announceResponses = announcePage.getContent().stream()
+                .map(announce -> new AnnounceResponse(
+                        announce.getId(),
+                        announce.getTitle(),
+                        announce.getContent(),
+                        announce.getAdmin().getId()
+                ))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(announceResponses, pageable, announcePage.getTotalElements());
+    }
+
 }

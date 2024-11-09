@@ -1,12 +1,16 @@
 package org.codingtext.admin.controller;
 import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.dto.AnnounceRequest;
+import org.codingtext.admin.dto.AnnounceResponse;
 import org.codingtext.admin.dto.PermitRequest;
 import org.codingtext.admin.dto.report.ArticleResponse;
 import org.codingtext.admin.dto.report.ReplyRequest;
 import org.codingtext.admin.dto.report.ArticleRequest;
 import org.codingtext.admin.dto.report.ReplyResponse;
 import org.codingtext.admin.service.AdminService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,20 +61,33 @@ public class AdminController {
     }
 
     @GetMapping("/report/articles")
-    public ResponseEntity<?> getReportArticles() {
-        List<ArticleResponse> reports = adminService.findReportArticles();
-        return ResponseEntity.ok(reports);
+    public ResponseEntity<Page<ArticleResponse>> getReportArticles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(adminService.findReportArticles(pageable));
     }
 
     @GetMapping("/report/replies")
-    public ResponseEntity<?> getReportReplies() {
-        List<ReplyResponse> reports = adminService.findReportReplies();
-        return ResponseEntity.ok(reports);
+    public ResponseEntity<Page<ReplyResponse>> getReportReplies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(adminService.findReportReplies(pageable));
     }
+
 
     @PostMapping("/announce")
     public ResponseEntity<?> createAnnounce(@RequestBody AnnounceRequest announceRequest) {
         adminService.saveAnnounce(announceRequest);
         return ResponseEntity.ok("Announcement created successfully.");
+    }
+
+    @GetMapping("/announce")
+    public ResponseEntity<Page<AnnounceResponse>> getAnnouncements(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(adminService.findAnnouncements(pageable));
     }
 }
