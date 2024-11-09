@@ -1,11 +1,15 @@
 package org.codingtext.admin.controller;
 import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.dto.PermitRequest;
-import org.codingtext.admin.dto.report.ReportReplyRequest;
-import org.codingtext.admin.dto.report.ReportArticleRequest;
+import org.codingtext.admin.dto.report.ArticleResponse;
+import org.codingtext.admin.dto.report.ReplyRequest;
+import org.codingtext.admin.dto.report.ArticleRequest;
+import org.codingtext.admin.dto.report.ReplyResponse;
 import org.codingtext.admin.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -41,14 +45,28 @@ public class AdminController {
     }
 
     @PostMapping("/report/articles")
-    public ResponseEntity<?> saveReportArticle(@RequestBody ReportArticleRequest reportArticleRequest) {
+    public ResponseEntity<?> saveReportArticle(@RequestBody ArticleRequest reportArticleRequest) {
         adminService.saveReportArticle(reportArticleRequest);
         return ResponseEntity.ok("Report Article saved successfully.");
     }
 
     @PostMapping("/report/replies")
-    public ResponseEntity<?> saveReport(@RequestBody ReportReplyRequest reportReplyRequest) {
+    public ResponseEntity<?> saveReport(@RequestBody ReplyRequest reportReplyRequest) {
         adminService.saveReportReply(reportReplyRequest);
         return ResponseEntity.ok("Report Reply saved successfully.");
     }
+
+    @GetMapping("/report/articles")
+    public ResponseEntity<?> getReportArticles() {
+        List<ArticleResponse> reports = adminService.findReportArticles();
+        return ResponseEntity.ok(reports);
+    }
+
+    @GetMapping("/report/replies")
+    public ResponseEntity<?> getReportReplies() {
+        List<ReplyResponse> reports = adminService.findReportReplies();
+        return ResponseEntity.ok(reports);
+    }
+
+
 }

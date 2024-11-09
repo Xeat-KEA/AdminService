@@ -7,11 +7,11 @@ import org.codingtext.admin.domain.ReportType;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReportReplyRequest {
+public class ArticleRequest {
     private long reporterId;
     private long blogId;
     private long articleId;
-    private long replyId;
     private ReportType reportType;
     private String customDescription;
 }
+
