@@ -1,5 +1,6 @@
 package org.codingtext.admin.controller;
 import lombok.RequiredArgsConstructor;
+import org.codingtext.admin.dto.AnnounceRequest;
 import org.codingtext.admin.dto.PermitRequest;
 import org.codingtext.admin.dto.report.ArticleResponse;
 import org.codingtext.admin.dto.report.ReplyRequest;
@@ -39,7 +40,6 @@ public class AdminController {
     public ResponseEntity<String> deleteAdmin(
             @RequestHeader("AdminId") Long rootAdminId,
             @PathVariable Long adminId) {
-        // 요청을 보낸 사용자의 권한 확인 후 삭제
         String message = adminService.deleteAdmin(rootAdminId, adminId);
         return ResponseEntity.ok(message);
     }
@@ -68,5 +68,9 @@ public class AdminController {
         return ResponseEntity.ok(reports);
     }
 
-
+    @PostMapping("/announce")
+    public ResponseEntity<?> createAnnounce(@RequestBody AnnounceRequest announceRequest) {
+        adminService.saveAnnounce(announceRequest);
+        return ResponseEntity.ok("Announcement created successfully.");
+    }
 }
