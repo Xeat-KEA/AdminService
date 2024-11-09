@@ -8,8 +8,12 @@ import org.codingtext.admin.domain.AdminRole;
 import org.codingtext.admin.domain.Announce;
 import org.codingtext.admin.domain.UserReport;
 import org.codingtext.admin.dto.*;
+import org.codingtext.admin.dto.announce.AnnounceDetailResponse;
+import org.codingtext.admin.dto.announce.AnnounceRequest;
+import org.codingtext.admin.dto.announce.AnnounceResponse;
 import org.codingtext.admin.dto.report.*;
 import org.codingtext.admin.error.exception.AdminNotFoundException;
+import org.codingtext.admin.error.exception.AnnounceNotFoundException;
 import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
 import org.codingtext.admin.repository.AnnounceRepository;
@@ -217,12 +221,22 @@ public class AdminService {
                 .map(announce -> new AnnounceResponse(
                         announce.getId(),
                         announce.getTitle(),
-                        announce.getContent(),
-                        announce.getAdmin().getId()
+                        announce.getCreatedAt().toLocalDate()
                 ))
                 .collect(Collectors.toList());
 
         return new PageImpl<>(announceResponses, pageable, announcePage.getTotalElements());
     }
 
+    public AnnounceDetailResponse findAnnounceDetails(long announceId) {
+        Announce announce = announceRepository.findById(announceId)
+                .orElseThrow(() -> new AnnounceNotFoundException("announcement not found"));
+
+        return AnnounceDetailResponse.builder()
+                .announceId(announce.getId())
+                .title(announce.getTitle())
+                .content(announce.getContent())
+                .createdDate(announce.getCreatedAt().toLocalDate())
+                .build();
+    }
 }
