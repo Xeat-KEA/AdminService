@@ -1,14 +1,16 @@
-package org.codingtext.admin.dto;
+package org.codingtext.admin.dto.announce;
 
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnnounceResponse {
+public class AnnounceDetailResponse {
     private long announceId;
     private String title;
     private String content;
-    private long adminId;
+    private LocalDate createdDate;
 }

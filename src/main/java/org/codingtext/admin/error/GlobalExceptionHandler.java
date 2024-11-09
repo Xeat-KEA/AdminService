@@ -1,9 +1,6 @@
 package org.codingtext.admin.error;
 
-import org.codingtext.admin.error.exception.AdminNotFoundException;
-import org.codingtext.admin.error.exception.InvalidPasswordException;
-import org.codingtext.admin.error.exception.PermissionDeniedException;
-import org.codingtext.admin.error.exception.ProblemDeletionFailedException;
+import org.codingtext.admin.error.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,5 +31,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleProblemDeletionFailedException(ProblemDeletionFailedException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage());
         return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+
+    @ExceptionHandler(AnnounceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAnnounceNotFoundExceptionException(AnnounceNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return new ResponseEntity<>(errorResponse,HttpStatus.NOT_FOUND);
     }
 }

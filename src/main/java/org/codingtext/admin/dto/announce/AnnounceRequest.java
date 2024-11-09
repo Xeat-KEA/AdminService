@@ -1,4 +1,4 @@
-package org.codingtext.admin.dto;
+package org.codingtext.admin.dto.announce;
 
 import lombok.*;
 

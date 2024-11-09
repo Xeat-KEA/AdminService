@@ -1,7 +1,7 @@
 package org.codingtext.admin.controller;
 import lombok.RequiredArgsConstructor;
-import org.codingtext.admin.dto.AnnounceRequest;
-import org.codingtext.admin.dto.AnnounceResponse;
+import org.codingtext.admin.dto.announce.AnnounceRequest;
+import org.codingtext.admin.dto.announce.AnnounceResponse;
 import org.codingtext.admin.dto.PermitRequest;
 import org.codingtext.admin.dto.report.ArticleResponse;
 import org.codingtext.admin.dto.report.ReplyRequest;
@@ -13,8 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -89,5 +87,10 @@ public class AdminController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(adminService.findAnnouncements(pageable));
+    }
+
+    @GetMapping("/announce/{announceId}")
+    public ResponseEntity<?> getAnnouncements(@PathVariable long announceId){
+        return ResponseEntity.ok(adminService.findAnnounceDetails(announceId));
     }
 }
