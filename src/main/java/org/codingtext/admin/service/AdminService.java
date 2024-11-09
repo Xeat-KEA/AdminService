@@ -142,7 +142,7 @@ public class AdminService {
         return reports.stream()
                 .map(userReport -> ArticleResponse.builder()
                         .articleId(userReport.getArticleId())
-                        .title(articleIdToTitleMap.getOrDefault(userReport.getArticleId(), "Unknown Title"))
+                        .articleTitle(articleIdToTitleMap.getOrDefault(userReport.getArticleId(), "Unknown Title"))
                         .name(userIdToNicknameMap.getOrDefault(userReport.getUserId(), "Unknown Nickname"))
                         .reportType(userReport.getReportType())
                         .reportDate(userReport.getCreatedAt().toLocalDate())
@@ -152,6 +152,32 @@ public class AdminService {
 
 
     public List<ReplyResponse> findReportReplies() {
-        return null;
+        List<UserReport> reports = userReportRepository.findAll();
+
+        // articleId와 userId 리스트 추출
+        List<Long> replyIds = reports.stream()
+                .map(UserReport::getReplyId)
+                .distinct()
+                .collect(Collectors.toList());
+        List<Long> userIds = reports.stream()
+                .map(UserReport::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, String> replyIdToTitleMap = blogServiceClient.getRepliesByIds(replyIds).stream()
+                .collect(Collectors.toMap(TitleResponse::getId, TitleResponse::getTitle));
+        Map<Long, String> userIdToNicknameMap = userServiceClient.getNicknamesByIds(userIds).stream()
+                .collect(Collectors.toMap(NicknameResponse::getId, NicknameResponse::getNickname));
+
+        // ArticleResponse 생성 및 반환
+        return reports.stream()
+                .map(userReport -> ReplyResponse.builder()
+                        .replyId(userReport.getReplyId())
+                        .replyTitle(replyIdToTitleMap.getOrDefault(userReport.getReplyId(), "Unknown Title"))
+                        .name(userIdToNicknameMap.getOrDefault(userReport.getUserId(), "Unknown Nickname"))
+                        .reportType(userReport.getReportType())
+                        .reportDate(userReport.getCreatedAt().toLocalDate())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

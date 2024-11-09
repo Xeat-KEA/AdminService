@@ -13,4 +13,7 @@ public interface BlogServiceClient {
 
     @GetMapping("/articles/titles")
     List<TitleResponse> getTitlesByIds(@RequestBody List<Long> articleIds);
+
+    @GetMapping("/replies/titles")
+    List<TitleResponse> getRepliesByIds(@RequestBody List<Long> replyIds);
 }
