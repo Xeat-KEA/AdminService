@@ -19,11 +19,11 @@ public class UserReport extends BaseEntity {
     @Column(name = "REPORT_ID")
     private Long id;
 
-    @Column(name = "REPORTER_ID", nullable = false)
-    private Long reporterId; //피신고자
+    @Column(name = "USER_ID", nullable = false)
+    private Long userId;
 
     @Column(name = "BLOG_ID", nullable = false)
-    private Long blogId;
+    private Long blogId; //신고하는 사람
 
     @Column(name = "ARTICLE_ID")
     private Long articleId;

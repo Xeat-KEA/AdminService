@@ -1,14 +1,13 @@
 package org.codingtext.admin.service;
 
 import lombok.RequiredArgsConstructor;
+import org.codingtext.admin.controller.feignclient.BlogServiceClient;
+import org.codingtext.admin.controller.feignclient.UserServiceClient;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
 import org.codingtext.admin.domain.UserReport;
-import org.codingtext.admin.dto.AdminResponse;
-import org.codingtext.admin.dto.PermitRequest;
-import org.codingtext.admin.dto.PermitResponse;
-import org.codingtext.admin.dto.report.ReportArticleRequest;
-import org.codingtext.admin.dto.report.ReportReplyRequest;
+import org.codingtext.admin.dto.*;
+import org.codingtext.admin.dto.report.*;
 import org.codingtext.admin.error.exception.AdminNotFoundException;
 import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 public class AdminService {
     private final AdminRepository adminRepository;
     private final UserReportRepository userReportRepository;
+    private final BlogServiceClient blogServiceClient;
+    private final UserServiceClient userServiceClient;
 
     public List<AdminResponse> findNoneAccount() {
         // DB에서 NONE 역할의 Admin을 조회하고 DTO로 변환
@@ -94,9 +96,9 @@ public class AdminService {
 
 
     @Transactional
-    public void saveReportArticle(ReportArticleRequest reportArticleRequest) {
+    public void saveReportArticle(ArticleRequest reportArticleRequest) {
         userReportRepository.save(UserReport.builder()
-                .reporterId(reportArticleRequest.getReporterId())
+                .userId(reportArticleRequest.getReporterId())
                 .blogId(reportArticleRequest.getBlogId())
                 .articleId(reportArticleRequest.getArticleId())
                 .reportType(reportArticleRequest.getReportType())
@@ -105,14 +107,51 @@ public class AdminService {
     }
 
     @Transactional
-    public void saveReportReply(ReportReplyRequest reportReplyRequest) {
+    public void saveReportReply(ReplyRequest reportReplyRequest) {
         userReportRepository.save(UserReport.builder()
-                .reporterId(reportReplyRequest.getReporterId())
+                .userId(reportReplyRequest.getReporterId())
                 .blogId(reportReplyRequest.getBlogId())
                 .articleId(reportReplyRequest.getArticleId())
                 .replyId(reportReplyRequest.getReplyId())
                 .reportType(reportReplyRequest.getReportType())
                 .customDescription(reportReplyRequest.getCustomDescription())
                 .build());
+    }
+
+    // 게시글 신고 내역 조회
+    public List<ArticleResponse> findReportArticles() {
+        List<UserReport> reports = userReportRepository.findAll();
+
+        // articleId와 userId 리스트 추출
+        List<Long> articleIds = reports.stream()
+                .map(UserReport::getArticleId)
+                .distinct()
+                .collect(Collectors.toList());
+        List<Long> userIds = reports.stream()
+                .map(UserReport::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 외부 서비스에서 제목 및 닉네임 데이터 가져오기
+        Map<Long, String> articleIdToTitleMap = blogServiceClient.getTitlesByIds(articleIds).stream()
+                .collect(Collectors.toMap(TitleResponse::getId, TitleResponse::getTitle));
+        Map<Long, String> userIdToNicknameMap = userServiceClient.getNicknamesByIds(userIds).stream()
+                .collect(Collectors.toMap(NicknameResponse::getId, NicknameResponse::getNickname));
+
+        // ArticleResponse 생성 및 반환
+        return reports.stream()
+                .map(userReport -> ArticleResponse.builder()
+                        .articleId(userReport.getArticleId())
+                        .title(articleIdToTitleMap.getOrDefault(userReport.getArticleId(), "Unknown Title"))
+                        .name(userIdToNicknameMap.getOrDefault(userReport.getUserId(), "Unknown Nickname"))
+                        .reportType(userReport.getReportType())
+                        .reportDate(userReport.getCreatedAt().toLocalDate())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
+    public List<ReplyResponse> findReportReplies() {
+        return null;
     }
 }
