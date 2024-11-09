@@ -4,25 +4,28 @@ import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.controller.feignclient.CodeServiceClient;
 import org.codingtext.admin.dto.problem.*;
 import org.codingtext.admin.error.exception.ProblemDeletionFailedException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.codingtext.admin.error.exception.ProblemCreationFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProblemService {
 
     private final CodeServiceClient codeServiceClient;
 
-    public List<ProblemListResponse> findAllCodeProblems() {
-        return codeServiceClient.getProblemList();
+    public Page<ProblemListResponse> findAllCodeProblems(int page, int size) {
+        return codeServiceClient.getProblemList(page, size);
     }
 
+    @Transactional
     public ProblemResponse createProblem(ProblemRequest problemRequest) {
         ResponseEntity<ProblemResponse> response = codeServiceClient.createProblem(problemRequest);
         if (response.getStatusCode().is2xxSuccessful()) {
@@ -36,6 +39,7 @@ public class ProblemService {
         }
     }
 
+    @Transactional
     public String deleteProblem(Long codeId) {
         ResponseEntity<?> response = codeServiceClient.deleteProblem(codeId);
         if (response.getStatusCode().is2xxSuccessful()) {
