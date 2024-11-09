@@ -16,25 +16,25 @@ public class UserReport extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REPORT_ID")
+    @Column(name = "report_id")
     private Long id;
 
-    @Column(name = "USER_ID", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "BLOG_ID", nullable = false)
+    @Column(name = "blog_id", nullable = false)
     private Long blogId; //신고하는 사람
 
-    @Column(name = "ARTICLE_ID")
+    @Column(name = "article_id")
     private Long articleId;
 
-    @Column(name = "REPLY_ID")
+    @Column(name = "reply_id")
     private Long replyId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "REPORT_TYPE", nullable = false)
+    @Column(name = "report_type", nullable = false)
     private ReportType reportType;
 
-    @Column(name = "REPORT_CUSTOM_DESCRIPTION")
+    @Column(name = "report_custom_description")
     private String customDescription; //신고사유 직접입력, ReportType이 Custom이 아닐 경우에는 null
 }

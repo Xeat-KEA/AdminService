@@ -5,12 +5,14 @@ import org.codingtext.admin.controller.feignclient.BlogServiceClient;
 import org.codingtext.admin.controller.feignclient.UserServiceClient;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
+import org.codingtext.admin.domain.Announce;
 import org.codingtext.admin.domain.UserReport;
 import org.codingtext.admin.dto.*;
 import org.codingtext.admin.dto.report.*;
 import org.codingtext.admin.error.exception.AdminNotFoundException;
 import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
+import org.codingtext.admin.repository.AnnounceRepository;
 import org.codingtext.admin.repository.UserReportRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class AdminService {
     private final UserReportRepository userReportRepository;
     private final BlogServiceClient blogServiceClient;
     private final UserServiceClient userServiceClient;
+    private final AnnounceRepository announceRepository;
 
     public List<AdminResponse> findNoneAccount() {
         // DB에서 NONE 역할의 Admin을 조회하고 DTO로 변환
@@ -179,5 +182,18 @@ public class AdminService {
                         .reportDate(userReport.getCreatedAt().toLocalDate())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public void saveAnnounce(AnnounceRequest announceRequest) {
+        // Admin 존재 여부 확인
+        Admin admin = adminRepository.findById(announceRequest.getAdminId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Admin ID"));
+
+        // Announce 생성
+        announceRepository.save(Announce.builder()
+                .title(announceRequest.getTitle())
+                .content(announceRequest.getContent())
+                .admin(admin)
+                .build());
     }
 }
