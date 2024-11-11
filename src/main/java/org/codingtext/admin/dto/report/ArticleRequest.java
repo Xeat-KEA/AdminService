@@ -9,7 +9,7 @@ import org.codingtext.admin.domain.ReportType;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ArticleRequest {
     private long reporterId;
-    private long blogId;
+    private long reportedId;
     private long articleId;
     private ReportType reportType;
     private String customDescription;

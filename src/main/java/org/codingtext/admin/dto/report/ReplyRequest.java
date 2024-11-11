@@ -9,7 +9,7 @@ import org.codingtext.admin.domain.ReportType;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReplyRequest {
     private long reporterId;
-    private long blogId;
+    private long reportedId;
     private long articleId;
     private long replyId;
     private ReportType reportType;
