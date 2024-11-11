@@ -53,7 +53,7 @@ public class AdminController {
     }
 
     @PostMapping("/report/replies")
-    public ResponseEntity<?> saveReport(@RequestBody ReplyRequest reportReplyRequest) {
+    public ResponseEntity<?> saveReportReply(@RequestBody ReplyRequest reportReplyRequest) {
         adminService.saveReportReply(reportReplyRequest);
         return ResponseEntity.ok("Report Reply saved successfully.");
     }

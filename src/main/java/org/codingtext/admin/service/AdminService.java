@@ -111,8 +111,8 @@ public class AdminService {
     @Transactional
     public void saveReportArticle(ArticleRequest reportArticleRequest) {
         userReportRepository.save(UserReport.builder()
-                .userId(reportArticleRequest.getReporterId())
-                .blogId(reportArticleRequest.getBlogId())
+                .reportingUserId(reportArticleRequest.getReporterId())
+                .reportedUserId(reportArticleRequest.getReportedId())
                 .articleId(reportArticleRequest.getArticleId())
                 .reportType(reportArticleRequest.getReportType())
                 .customDescription(reportArticleRequest.getCustomDescription())
@@ -122,8 +122,8 @@ public class AdminService {
     @Transactional
     public void saveReportReply(ReplyRequest reportReplyRequest) {
         userReportRepository.save(UserReport.builder()
-                .userId(reportReplyRequest.getReporterId())
-                .blogId(reportReplyRequest.getBlogId())
+                .reportingUserId(reportReplyRequest.getReporterId())
+                .reportedUserId(reportReplyRequest.getReportedId())
                 .articleId(reportReplyRequest.getArticleId())
                 .replyId(reportReplyRequest.getReplyId())
                 .reportType(reportReplyRequest.getReportType())
@@ -143,7 +143,7 @@ public class AdminService {
                 .distinct()
                 .collect(Collectors.toList());
         List<Long> userIds = reports.stream()
-                .map(UserReport::getUserId)
+                .map(UserReport::getReportingUserId)
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -158,7 +158,7 @@ public class AdminService {
                 .map(userReport -> ArticleResponse.builder()
                         .articleId(userReport.getArticleId())
                         .articleTitle(articleIdToTitleMap.getOrDefault(userReport.getArticleId(), "Unknown Title"))
-                        .name(userIdToNicknameMap.getOrDefault(userReport.getUserId(), "Unknown Nickname"))
+                        .name(userIdToNicknameMap.getOrDefault(userReport.getReportingUserId(), "Unknown Nickname"))
                         .reportType(userReport.getReportType())
                         .reportDate(userReport.getCreatedAt().toLocalDate())
                         .build())
@@ -177,7 +177,7 @@ public class AdminService {
                 .distinct()
                 .collect(Collectors.toList());
         List<Long> userIds = reports.stream()
-                .map(UserReport::getUserId)
+                .map(UserReport::getReportingUserId)
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -190,7 +190,7 @@ public class AdminService {
                 .map(userReport -> ReplyResponse.builder()
                         .replyId(userReport.getReplyId())
                         .replyTitle(replyIdToTitleMap.getOrDefault(userReport.getReplyId(), "Unknown Title"))
-                        .name(userIdToNicknameMap.getOrDefault(userReport.getUserId(), "Unknown Nickname"))
+                        .name(userIdToNicknameMap.getOrDefault(userReport.getReportingUserId(), "Unknown Nickname"))
                         .reportType(userReport.getReportType())
                         .reportDate(userReport.getCreatedAt().toLocalDate())
                         .build())
