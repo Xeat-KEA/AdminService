@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admins")
-public class AdminController {
+public class AdminController implements AdminApi{
     private final AdminService adminService;
 
     @GetMapping("/none")
@@ -49,13 +49,13 @@ public class AdminController {
     @PostMapping("/report/articles")
     public ResponseEntity<?> saveReportArticle(@RequestBody ArticleRequest reportArticleRequest) {
         adminService.saveReportArticle(reportArticleRequest);
-        return ResponseEntity.ok("Report Article saved successfully.");
+        return ResponseEntity.ok("게시글이 신고 처리 되었습니다.");
     }
 
     @PostMapping("/report/replies")
     public ResponseEntity<?> saveReportReply(@RequestBody ReplyRequest reportReplyRequest) {
         adminService.saveReportReply(reportReplyRequest);
-        return ResponseEntity.ok("Report Reply saved successfully.");
+        return ResponseEntity.ok("댓글이 신고 처리 되었습니다.");
     }
 
     @GetMapping("/report/articles")
@@ -74,23 +74,23 @@ public class AdminController {
         return ResponseEntity.ok(adminService.findReportReplies(pageable));
     }
 
-
-    @PostMapping("/announce")
-    public ResponseEntity<?> createAnnounce(@RequestBody AnnounceRequest announceRequest) {
-        adminService.saveAnnounce(announceRequest);
-        return ResponseEntity.ok("Announcement created successfully.");
-    }
-
-    @GetMapping("/announce")
-    public ResponseEntity<Page<AnnounceResponse>> getAnnouncements(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(adminService.findAnnouncements(pageable));
-    }
-
-    @GetMapping("/announce/{announceId}")
-    public ResponseEntity<?> getAnnouncements(@PathVariable long announceId){
-        return ResponseEntity.ok(adminService.findAnnounceDetails(announceId));
-    }
+//
+//    @PostMapping("/announce")
+//    public ResponseEntity<?> createAnnounce(@RequestBody AnnounceRequest announceRequest) {
+//        adminService.saveAnnounce(announceRequest);
+//        return ResponseEntity.ok("Announcement created successfully.");
+//    }
+//
+//    @GetMapping("/announce")
+//    public ResponseEntity<Page<AnnounceResponse>> getAnnouncements(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        return ResponseEntity.ok(adminService.findAnnouncements(pageable));
+//    }
+//
+//    @GetMapping("/announce/{announceId}")
+//    public ResponseEntity<?> getAnnouncements(@PathVariable long announceId){
+//        return ResponseEntity.ok(adminService.findAnnounceDetails(announceId));
+//    }
 }
