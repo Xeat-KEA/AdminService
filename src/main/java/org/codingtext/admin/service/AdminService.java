@@ -5,7 +5,7 @@ import org.codingtext.admin.controller.feignclient.BlogServiceClient;
 import org.codingtext.admin.controller.feignclient.UserServiceClient;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
-import org.codingtext.admin.domain.Announce;
+
 import org.codingtext.admin.domain.UserReport;
 import org.codingtext.admin.dto.*;
 import org.codingtext.admin.dto.announce.AnnounceDetailResponse;
@@ -54,10 +54,10 @@ public class AdminService {
     public PermitResponse processAdminRequest(long adminId, PermitRequest permitRequest) {
         // root 조회
         Admin rootAdmin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new AdminNotFoundException("Root admin not found"));
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         // none 조회
         Admin noneAdmin = adminRepository.findById(permitRequest.getAdminId())
-                .orElseThrow(() -> new AdminNotFoundException("None admin not found"));
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         // ROLE이 ROOT인 경우에만 처리
         if (rootAdmin.getAdminRole() == AdminRole.ROOT) {
             if (permitRequest.getIsPermit()) {
@@ -67,7 +67,7 @@ public class AdminService {
                         .build());
                 return PermitResponse.builder()
                         .adminId(permitRequest.getAdminId())
-                        .message("권한이 GENERAL로 변경되었습니다.")
+                        .message("관리자 승인 요청이 처리되었습니다.")
                         .build();
             } else {
                 adminRepository.deleteById(permitRequest.getAdminId());
@@ -77,7 +77,7 @@ public class AdminService {
                         .build();
             }
         } else {
-            throw new PermissionDeniedException("Only ROOT accounts can process this request.");
+            throw new PermissionDeniedException("승인 요청을 처리할 권한이 없습니다.");
         }
     }
 
@@ -95,15 +95,15 @@ public class AdminService {
     @Transactional
     public String deleteAdmin(Long rootAdminId, Long adminId) {
         Admin rootAdmin = adminRepository.findById(rootAdminId)
-                .orElseThrow(() -> new AdminNotFoundException("root admin not found"));
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         Admin generalAdmin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new AdminNotFoundException("Admin to delete not found"));
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         // 요청자가 ROOT 권한을 가지고 있는 경우에만 삭제
         if (rootAdmin.getAdminRole() == AdminRole.ROOT) {
             adminRepository.delete(generalAdmin);
-            return "Admin with ID " + adminId + " has been deleted.";
+            return "관리자가 삭제되었습니다. 관리자 ID: " + adminId;
         } else {
-            throw new PermissionDeniedException("Only ROOT accounts can delete admins.");
+            throw new PermissionDeniedException("삭제 요청을 처리할 권한이 없습니다.");
         }
     }
 
@@ -200,43 +200,43 @@ public class AdminService {
     }
 
 
-    @Transactional
-    public void saveAnnounce(AnnounceRequest announceRequest) {
-        // Admin 존재 여부 확인
-        Admin admin = adminRepository.findById(announceRequest.getAdminId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Admin ID"));
-
-        // Announce 생성
-        announceRepository.save(Announce.builder()
-                .title(announceRequest.getTitle())
-                .content(announceRequest.getContent())
-                .admin(admin)
-                .build());
-    }
-
-    public Page<AnnounceResponse> findAnnouncements(Pageable pageable) {
-        Page<Announce> announcePage = announceRepository.findAll(pageable);
-
-        List<AnnounceResponse> announceResponses = announcePage.getContent().stream()
-                .map(announce -> new AnnounceResponse(
-                        announce.getId(),
-                        announce.getTitle(),
-                        announce.getCreatedAt().toLocalDate()
-                ))
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(announceResponses, pageable, announcePage.getTotalElements());
-    }
-
-    public AnnounceDetailResponse findAnnounceDetails(long announceId) {
-        Announce announce = announceRepository.findById(announceId)
-                .orElseThrow(() -> new AnnounceNotFoundException("announcement not found"));
-
-        return AnnounceDetailResponse.builder()
-                .announceId(announce.getId())
-                .title(announce.getTitle())
-                .content(announce.getContent())
-                .createdDate(announce.getCreatedAt().toLocalDate())
-                .build();
-    }
+//    @Transactional
+//    public void saveAnnounce(AnnounceRequest announceRequest) {
+//        // Admin 존재 여부 확인
+//        Admin admin = adminRepository.findById(announceRequest.getAdminId())
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid Admin ID"));
+//
+//        // Announce 생성
+//        announceRepository.save(Announce.builder()
+//                .title(announceRequest.getTitle())
+//                .content(announceRequest.getContent())
+//                .admin(admin)
+//                .build());
+//    }
+//
+//    public Page<AnnounceResponse> findAnnouncements(Pageable pageable) {
+//        Page<Announce> announcePage = announceRepository.findAll(pageable);
+//
+//        List<AnnounceResponse> announceResponses = announcePage.getContent().stream()
+//                .map(announce -> new AnnounceResponse(
+//                        announce.getId(),
+//                        announce.getTitle(),
+//                        announce.getCreatedAt().toLocalDate()
+//                ))
+//                .collect(Collectors.toList());
+//
+//        return new PageImpl<>(announceResponses, pageable, announcePage.getTotalElements());
+//    }
+//
+//    public AnnounceDetailResponse findAnnounceDetails(long announceId) {
+//        Announce announce = announceRepository.findById(announceId)
+//                .orElseThrow(() -> new AnnounceNotFoundException("announcement not found"));
+//
+//        return AnnounceDetailResponse.builder()
+//                .announceId(announce.getId())
+//                .title(announce.getTitle())
+//                .content(announce.getContent())
+//                .createdDate(announce.getCreatedAt().toLocalDate())
+//                .build();
+//    }
 }
