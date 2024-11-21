@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    tools {
+        gradle 'gradle'
+    }
+
+    environment {
+        IMAGE_NAME = "atom8426/ct-adminservice"
+        DOCKER_COMPOSE_FILE = "/home/pjh1/spring-cloud/docker-compose.yml"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'github_access_token', url: 'https://github.com/Xeat-KEA/AdminService.git'
+            }
+        }
+
+        stage('Build Gradle Project') {
+            steps {
+                sh '''
+                    echo 'gradlew 빌드 시작'
+                    chmod +x ./gradlew
+                    ./gradlew clean build
+                '''
+            }
+        }
+
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    sh 'docker build --build-arg JAR_FILE=build/libs/admin-0.0.1-SNAPSHOT.jar -t ${IMAGE_NAME}:latest .'
+                    withCredentials([usernamePassword(credentialsId: 'docker_credential_id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', 'docker_credential_id') {
+                            sh '''
+                                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                                docker push "${IMAGE_NAME}:latest"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to VM') {
+            steps {
+                script {
+                   sh """
+                        docker-compose -f ${DOCKER_COMPOSE_FILE} pull
+                        docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+                   """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
