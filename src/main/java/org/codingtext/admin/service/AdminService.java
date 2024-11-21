@@ -1,23 +1,21 @@
 package org.codingtext.admin.service;
 
 import lombok.RequiredArgsConstructor;
-import org.codingtext.admin.controller.feignclient.BlogServiceClient;
-import org.codingtext.admin.controller.feignclient.UserServiceClient;
 import org.codingtext.admin.domain.Admin;
 import org.codingtext.admin.domain.AdminRole;
 
-import org.codingtext.admin.domain.UserReport;
+import org.codingtext.admin.domain.Announce;
+
 import org.codingtext.admin.dto.*;
 import org.codingtext.admin.dto.announce.AnnounceDetailResponse;
 import org.codingtext.admin.dto.announce.AnnounceRequest;
 import org.codingtext.admin.dto.announce.AnnounceResponse;
-import org.codingtext.admin.dto.report.*;
+
 import org.codingtext.admin.error.exception.AdminNotFoundException;
 import org.codingtext.admin.error.exception.AnnounceNotFoundException;
 import org.codingtext.admin.error.exception.PermissionDeniedException;
 import org.codingtext.admin.repository.AdminRepository;
 import org.codingtext.admin.repository.AnnounceRepository;
-import org.codingtext.admin.repository.UserReportRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -34,9 +31,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AdminService {
     private final AdminRepository adminRepository;
-    private final UserReportRepository userReportRepository;
-    private final BlogServiceClient blogServiceClient;
-    private final UserServiceClient userServiceClient;
     private final AnnounceRepository announceRepository;
 
     public List<AdminResponse> findNoneAccount() {
@@ -107,136 +101,47 @@ public class AdminService {
         }
     }
 
-
     @Transactional
-    public void saveReportArticle(ArticleRequest reportArticleRequest) {
-        userReportRepository.save(UserReport.builder()
-                .reportingUserId(reportArticleRequest.getReporterId())
-                .reportedUserId(reportArticleRequest.getReportedId())
-                .articleId(reportArticleRequest.getArticleId())
-                .reportType(reportArticleRequest.getReportType())
-                .customDescription(reportArticleRequest.getCustomDescription())
+    public AnnounceResponse saveAnnounce(AnnounceRequest announceRequest) {
+        Admin admin = adminRepository.findById(announceRequest.getAdminId())
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
+
+        Announce announce = announceRepository.save(Announce.builder()
+                .title(announceRequest.getTitle())
+                .content(announceRequest.getContent())
+                .admin(admin)
                 .build());
+
+        return AnnounceResponse.builder()
+                .announceId(announce.getId())
+                .title(announce.getTitle())
+                .createdDate(announce.getCreatedAt().toLocalDate())
+                .build();
     }
 
-    @Transactional
-    public void saveReportReply(ReplyRequest reportReplyRequest) {
-        userReportRepository.save(UserReport.builder()
-                .reportingUserId(reportReplyRequest.getReporterId())
-                .reportedUserId(reportReplyRequest.getReportedId())
-                .articleId(reportReplyRequest.getArticleId())
-                .replyId(reportReplyRequest.getReplyId())
-                .reportType(reportReplyRequest.getReportType())
-                .customDescription(reportReplyRequest.getCustomDescription())
-                .build());
+    public Page<AnnounceResponse> findAnnouncements(Pageable pageable) {
+        Page<Announce> announcePage = announceRepository.findAll(pageable);
+
+        List<AnnounceResponse> announceResponses = announcePage.getContent().stream()
+                .map(announce -> new AnnounceResponse(
+                        announce.getId(),
+                        announce.getTitle(),
+                        announce.getCreatedAt().toLocalDate()
+                ))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(announceResponses, pageable, announcePage.getTotalElements());
     }
 
-    // 게시글 신고 내역 조회
-    public Page<ArticleResponse> findReportArticles(Pageable pageable) {
-        // 페이징된 UserReport 조회
-        Page<UserReport> reportsPage = userReportRepository.findAll(pageable);
-        List<UserReport> reports = reportsPage.getContent();
+    public AnnounceDetailResponse findAnnounceDetails(long announceId) {
+        Announce announce = announceRepository.findById(announceId)
+                .orElseThrow(() -> new AnnounceNotFoundException("공지사항이 없습니다."));
 
-        // articleId와 userId 리스트 추출
-        List<Long> articleIds = reports.stream()
-                .map(UserReport::getArticleId)
-                .distinct()
-                .collect(Collectors.toList());
-        List<Long> userIds = reports.stream()
-                .map(UserReport::getReportingUserId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        // 외부 서비스에서 제목 및 닉네임 데이터 가져오기
-        Map<Long, String> articleIdToTitleMap = blogServiceClient.getTitlesByIds(articleIds).stream()
-                .collect(Collectors.toMap(TitleResponse::getId, TitleResponse::getTitle));
-        Map<Long, String> userIdToNicknameMap = userServiceClient.getNicknamesByIds(userIds).stream()
-                .collect(Collectors.toMap(NicknameResponse::getId, NicknameResponse::getNickname));
-
-        // ArticleResponse 리스트 생성
-        List<ArticleResponse> articleResponses = reports.stream()
-                .map(userReport -> ArticleResponse.builder()
-                        .articleId(userReport.getArticleId())
-                        .articleTitle(articleIdToTitleMap.getOrDefault(userReport.getArticleId(), "Unknown Title"))
-                        .name(userIdToNicknameMap.getOrDefault(userReport.getReportingUserId(), "Unknown Nickname"))
-                        .reportType(userReport.getReportType())
-                        .reportDate(userReport.getCreatedAt().toLocalDate())
-                        .build())
-                .collect(Collectors.toList());
-
-        // PageImpl을 사용해 Page<ArticleResponse> 생성 및 반환
-        return new PageImpl<>(articleResponses, pageable, reportsPage.getTotalElements());
+        return AnnounceDetailResponse.builder()
+                .announceId(announce.getId())
+                .title(announce.getTitle())
+                .content(announce.getContent())
+                .createdDate(announce.getCreatedAt().toLocalDate())
+                .build();
     }
-
-    public Page<ReplyResponse> findReportReplies(Pageable pageable) {
-        Page<UserReport> reportsPage = userReportRepository.findAll(pageable);
-        List<UserReport> reports = reportsPage.getContent(); // 현재 페이지의 데이터 목록
-
-        List<Long> replyIds = reports.stream()
-                .map(UserReport::getReplyId)
-                .distinct()
-                .collect(Collectors.toList());
-        List<Long> userIds = reports.stream()
-                .map(UserReport::getReportingUserId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        Map<Long, String> replyIdToTitleMap = blogServiceClient.getRepliesByIds(replyIds).stream()
-                .collect(Collectors.toMap(TitleResponse::getId, TitleResponse::getTitle));
-        Map<Long, String> userIdToNicknameMap = userServiceClient.getNicknamesByIds(userIds).stream()
-                .collect(Collectors.toMap(NicknameResponse::getId, NicknameResponse::getNickname));
-
-        List<ReplyResponse> replyResponses = reports.stream()
-                .map(userReport -> ReplyResponse.builder()
-                        .replyId(userReport.getReplyId())
-                        .replyTitle(replyIdToTitleMap.getOrDefault(userReport.getReplyId(), "Unknown Title"))
-                        .name(userIdToNicknameMap.getOrDefault(userReport.getReportingUserId(), "Unknown Nickname"))
-                        .reportType(userReport.getReportType())
-                        .reportDate(userReport.getCreatedAt().toLocalDate())
-                        .build())
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(replyResponses, pageable, reportsPage.getTotalElements());
-    }
-
-
-//    @Transactional
-//    public void saveAnnounce(AnnounceRequest announceRequest) {
-//        // Admin 존재 여부 확인
-//        Admin admin = adminRepository.findById(announceRequest.getAdminId())
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid Admin ID"));
-//
-//        // Announce 생성
-//        announceRepository.save(Announce.builder()
-//                .title(announceRequest.getTitle())
-//                .content(announceRequest.getContent())
-//                .admin(admin)
-//                .build());
-//    }
-//
-//    public Page<AnnounceResponse> findAnnouncements(Pageable pageable) {
-//        Page<Announce> announcePage = announceRepository.findAll(pageable);
-//
-//        List<AnnounceResponse> announceResponses = announcePage.getContent().stream()
-//                .map(announce -> new AnnounceResponse(
-//                        announce.getId(),
-//                        announce.getTitle(),
-//                        announce.getCreatedAt().toLocalDate()
-//                ))
-//                .collect(Collectors.toList());
-//
-//        return new PageImpl<>(announceResponses, pageable, announcePage.getTotalElements());
-//    }
-//
-//    public AnnounceDetailResponse findAnnounceDetails(long announceId) {
-//        Announce announce = announceRepository.findById(announceId)
-//                .orElseThrow(() -> new AnnounceNotFoundException("announcement not found"));
-//
-//        return AnnounceDetailResponse.builder()
-//                .announceId(announce.getId())
-//                .title(announce.getTitle())
-//                .content(announce.getContent())
-//                .createdDate(announce.getCreatedAt().toLocalDate())
-//                .build();
-//    }
 }

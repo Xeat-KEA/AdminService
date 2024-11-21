@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "atom8426/ct-adminservice"
-        DOCKER_COMPOSE_FILE = "/home/pjh1/spring-cloud/docker-compose.yml"
+        APP_NAME = "ct-adminservice-app"
     }
 
     stages {
@@ -45,10 +45,18 @@ pipeline {
         stage('Deploy to VM') {
             steps {
                 script {
-                   sh """
-                        docker-compose -f ${DOCKER_COMPOSE_FILE} pull
-                        docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
-                   """
+                    sh """
+                        docker pull ${IMAGE_NAME}:latest
+                        docker stop ${APP_NAME} || true
+                        docker rm ${APP_NAME} || true
+                        docker run -d --restart always --network host --name ${APP_NAME} \
+                          --env SPRING_PROFILE=prod \
+                          --env CT_DB_USER=${CT_DB_USER} \
+                          --env CT_DB_PASSWORD=${CT_DB_PASSWORD} \
+                          --env JWT_SECRET=${JWT_SECRET} \
+                          --env EUREKA_SERVER_URL=${EUREKA_SERVER_URL} \
+                          ${IMAGE_NAME}:latest
+                    """
                 }
             }
         }

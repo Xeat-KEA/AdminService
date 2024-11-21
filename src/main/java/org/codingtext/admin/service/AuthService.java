@@ -45,16 +45,16 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
         // 이메일로 Admin 조회
         Admin admin = adminRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new AdminNotFoundException("Admin not found"));
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
 
         // 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(loginRequest.getPassword(), admin.getPassword())) {
-            throw new InvalidPasswordException("Password does not match");
+            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
         }
 
         // 관리자 역할이 NONE인지 확인
         if (admin.getAdminRole() == AdminRole.NONE) {
-            throw new PermissionDeniedException("Account is not approved for login");
+            throw new PermissionDeniedException("관리자 승인이 되지 않았습니다.");
         }
 
         // JWT 토큰 생성

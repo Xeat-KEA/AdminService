@@ -27,11 +27,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(ProblemDeletionFailedException.class)
-    public ResponseEntity<ErrorResponse> handleProblemDeletionFailedException(ProblemDeletionFailedException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage());
-        return new ResponseEntity<>(errorResponse, ex.getStatus());
-    }
 
     @ExceptionHandler(AnnounceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAnnounceNotFoundExceptionException(AnnounceNotFoundException ex) {
