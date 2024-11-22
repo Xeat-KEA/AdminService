@@ -21,7 +21,7 @@ public class Announce extends BaseEntity{
     @Column(name = "title")
     private String title;
 
-    @Column(name = "contetn")
+    @Column(name = "content")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

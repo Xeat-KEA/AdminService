@@ -21,10 +21,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Configuration
 public class SwaggerConfig {
-
-    @Value("${swagger.server.baseUrl}")
-    private String swaggerServerBaseUrl;
-
     @Bean
     public OpenAPI jwtApi(){
         SecurityScheme securityScheme = new SecurityScheme()
@@ -38,7 +34,6 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
-                .security(Collections.singletonList(securityRequirement))
-                .addServersItem(new io.swagger.v3.oas.models.servers.Server().url(swaggerServerBaseUrl));
+                .security(Collections.singletonList(securityRequirement));
     }
 }

@@ -21,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
 
-
 @Tag(name = "Admin", description = "관리자 설정 API")
 public interface AdminApi {
 
@@ -114,10 +113,10 @@ public interface AdminApi {
                     @Parameter(name = "size", description = "페이지 당 데이터 개수 (기본값: 10)", schema = @Schema(type = "integer"))
             },
             responses = {
-            @ApiResponse(responseCode = "200", description = "공지사항 목록 조회 성공"),
-            @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-    }
+                    @ApiResponse(responseCode = "200", description = "공지사항 목록 조회 성공"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+            }
     )
     ResponseEntity<?> getAnnouncements(int page, int size);
 
