@@ -73,7 +73,7 @@ public class AuthService {
                 .adminRole(admin.getAdminRole())
                 .build();
 
-        return new LoginResponse(new JwtToken(accessToken, refreshToken), adminResponse);
+        return new LoginResponse(new JwtToken(accessToken), adminResponse);
     }
 
     public Claims validateAndExtractClaims(String token, String tokenType) {

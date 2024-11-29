@@ -13,7 +13,4 @@ public class JwtToken {
 
     @Schema(description = "Access Token", example = "eyJhbGciOiJIUzI1...")
     private final String accessToken;
-
-    @Schema(description = "Refresh Token", example = "eyJhbGciOiJIUzI1...")
-    private final String refreshToken;
 }
