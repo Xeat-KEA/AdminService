@@ -5,7 +5,9 @@ import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codingtext.admin.error.exception.TokenExpiredException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -17,7 +19,6 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtProvider {
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24L; //액세스토큰 유효시간: 24 시간
 
     @Value("${spring.jwt.secret}")
     private String secret;
@@ -28,12 +29,12 @@ public class JwtProvider {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createToken(long id, String email) {
+    public String createToken(String email, String type, Long expireMs) {
         return Jwts.builder()
-                .subject(String.valueOf(id))
-                .claim("email", email)
+                .subject(email)
+                .claim("type", type)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME))
+                .expiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(secretKey)
                 .compact();
     }
@@ -53,6 +54,7 @@ public class JwtProvider {
             log.error("Invalid JWT token, 유효하지 않은 jwt 토큰 입니다.");
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token. 만료된 jwt 토큰 입니다.");
+            throw new TokenExpiredException(HttpStatus.PAYMENT_REQUIRED, "token 만료"); //402에러
         } catch (IllegalArgumentException e) {
             log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
