@@ -20,7 +20,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${spring.jwt.secret}")
+    @Value("${jwt.admin.secret}")
     private String secret;
     private SecretKey secretKey;
 
