@@ -51,8 +51,7 @@ public interface AuthApi {
     @Operation(summary = "이메일 중복 검증",
             description = "이메일 중복 검증을 진행한다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "중복 검사 완료 (true/false)",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+                    @ApiResponse(responseCode = "200", description = "중복 검사 완료 (true/false)")
                   })
     ResponseEntity<?> validEmail(String email);
 
