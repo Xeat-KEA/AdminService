@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController implements AdminApi{
     private final AdminService adminService;
 
-    @GetMapping("/none")
-    public ResponseEntity<?> findNoneAccount() {
-        return ResponseEntity.ok(adminService.findNoneAccount());
-    }
-
     @PostMapping("/permit")
     public ResponseEntity<?> permitAdmin(
             @RequestHeader("Email") String email,
