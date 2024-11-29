@@ -24,9 +24,9 @@ public class AdminController implements AdminApi{
 
     @PostMapping("/permit")
     public ResponseEntity<?> permitAdmin(
-            @RequestHeader("AdminId") long adminId,
+            @RequestHeader("Email") String email,
             @RequestBody PermitRequest permitRequest) {
-        return ResponseEntity.ok(adminService.processAdminRequest(adminId, permitRequest));
+        return ResponseEntity.ok(adminService.processAdminRequest(email, permitRequest));
     }
 
     @GetMapping("/list")
@@ -36,9 +36,9 @@ public class AdminController implements AdminApi{
 
     @DeleteMapping("/{adminId}")
     public ResponseEntity<String> deleteAdmin(
-            @RequestHeader("AdminId") Long rootAdminId,
+            @RequestHeader("Email") String rootAdminEmail,
             @PathVariable Long adminId) {
-        String message = adminService.deleteAdmin(rootAdminId, adminId);
+        String message = adminService.deleteAdmin(rootAdminEmail, adminId);
         return ResponseEntity.ok(message);
     }
 

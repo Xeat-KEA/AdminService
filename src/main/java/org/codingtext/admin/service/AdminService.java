@@ -45,9 +45,9 @@ public class AdminService {
     }
 
     @Transactional
-    public PermitResponse processAdminRequest(long adminId, PermitRequest permitRequest) {
+    public PermitResponse processAdminRequest(String email, PermitRequest permitRequest) {
         // root 조회
-        Admin rootAdmin = adminRepository.findById(adminId)
+        Admin rootAdmin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         // none 조회
         Admin noneAdmin = adminRepository.findById(permitRequest.getAdminId())
@@ -87,9 +87,9 @@ public class AdminService {
     }
 
     @Transactional
-    public String deleteAdmin(Long rootAdminId, Long adminId) {
-        Admin rootAdmin = adminRepository.findById(rootAdminId)
-                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
+    public String deleteAdmin(String rootAdminEmail, Long adminId) {
+        Admin rootAdmin = adminRepository.findByEmail(rootAdminEmail)
+                .orElseThrow(() -> new AdminNotFoundException("루트 관리자를 찾을 수 없습니다."));
         Admin generalAdmin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         // 요청자가 ROOT 권한을 가지고 있는 경우에만 삭제

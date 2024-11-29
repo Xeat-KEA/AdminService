@@ -42,7 +42,7 @@ public interface AdminApi {
     @Operation(summary = "관리자 승인 요청 처리",
             description = "승인 대기 중인 관리자를 승인하거나 거절합니다.",
             parameters = {
-                    @Parameter(name = "AdminId", description = "승인 요청을 처리하는 루트 관리자 ID", required = true, in = ParameterIn.HEADER),
+                    @Parameter(name = "email", description = "승인 요청을 처리하는 루트 관리자 ID", required = true, in = ParameterIn.HEADER),
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공적으로 승인/거절 처리 완료.",
@@ -54,7 +54,7 @@ public interface AdminApi {
                     @ApiResponse(responseCode = "404", description = "요청한 관리자를 찾을 수 없습니다.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
-    ResponseEntity<?> permitAdmin(long adminId, PermitRequest permitRequest);
+    ResponseEntity<?> permitAdmin(String email, PermitRequest permitRequest);
 
 
     @Operation(summary = "관리자 전체 목록 조회",
@@ -71,7 +71,7 @@ public interface AdminApi {
     @Operation(summary = "관리자 계정 삭제",
             description = "특정 관리자 계정을 삭제합니다.",
             parameters = {
-                    @Parameter(name = "AdminId", description = "삭제 요청을 처리하는 루트 관리자 ID", required = true, in = ParameterIn.HEADER),
+                    @Parameter(name = "rootAdminEmail", description = "삭제 요청을 처리하는 루트 관리자 ID", required = true, in = ParameterIn.HEADER),
                     @Parameter(name = "adminId", description = "삭제할 관리자 ID", required = true, in = ParameterIn.PATH)
             },
             responses = {
@@ -82,7 +82,7 @@ public interface AdminApi {
                     @ApiResponse(responseCode = "404", description = "요청한 관리자를 찾을 수 없습니다.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
-    ResponseEntity<String> deleteAdmin(Long rootAdminId, Long adminId);
+    ResponseEntity<String> deleteAdmin(String rootAdminEmail, Long adminId);
 
 
     @Operation(summary = "공지사항 생성",
