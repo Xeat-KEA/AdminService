@@ -33,17 +33,6 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final AnnounceRepository announceRepository;
 
-    public List<AdminResponse> findNoneAccount() {
-        // DB에서 NONE 역할의 Admin을 조회하고 DTO로 변환
-        return adminRepository.findByAdminRole(AdminRole.NONE).stream()
-                .map(admin -> AdminResponse.builder()
-                        .id(admin.getId())
-                        .email(admin.getEmail())
-                        .adminRole(admin.getAdminRole()) // Enum을 문자열로 변환
-                        .build())
-                .collect(Collectors.toList());
-    }
-
     @Transactional
     public PermitResponse processAdminRequest(String email, PermitRequest permitRequest) {
         // root 조회

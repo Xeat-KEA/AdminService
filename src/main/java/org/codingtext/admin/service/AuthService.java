@@ -30,6 +30,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Transactional
     public AdminResponse signup(SignupRequest signupRequest) {
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
         Admin admin = Admin.builder()
@@ -48,31 +49,21 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
-        // 이메일로 Admin 조회
         Admin admin = adminRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
-
-        // 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(loginRequest.getPassword(), admin.getPassword())) {
             throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
         }
-
-        // 관리자 역할이 NONE인지 확인
         if (admin.getAdminRole() == AdminRole.NONE) {
             throw new PermissionDeniedException("관리자 승인이 되지 않았습니다.");
         }
-
-        // JWT 토큰 생성
         String accessToken = createBearerToken(admin.getEmail(), "access", 1000 * 60 * 60 * 24L);
-        String refreshToken = createBearerToken(admin.getEmail(), "refresh", 1000 * 60 * 60 * 24L);
 
-        // Admin 정보를 포함한 응답 객체 생성
         AdminResponse adminResponse = AdminResponse.builder()
                 .id(admin.getId())
                 .email(admin.getEmail())
                 .adminRole(admin.getAdminRole())
                 .build();
-
         return new LoginResponse(new JwtToken(accessToken), adminResponse);
     }
 
