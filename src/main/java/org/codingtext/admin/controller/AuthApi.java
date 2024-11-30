@@ -12,7 +12,6 @@ import org.codingtext.admin.dto.auth.LoginRequest;
 import org.codingtext.admin.dto.auth.LoginResponse;
 import org.codingtext.admin.dto.auth.SignupRequest;
 import org.codingtext.admin.error.ErrorResponse;
-import org.codingtext.admin.jwt.JwtToken;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Auth", description = "인증 관리 API")

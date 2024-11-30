@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/webjars/**", "/favicon.ico", "/webjars/**", "/error",
                                 "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/auth/**", "/", "/health", "/admins/**", "/codes/**").permitAll() //TODO: admin 경로 삭제
+                        .requestMatchers("/auth/**", "/", "/health", "/admins/**", "/login","/logout", "/actuator/**").permitAll()
                         .anyRequest().authenticated());
 
 
