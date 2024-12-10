@@ -16,9 +16,11 @@ import org.codingtext.admin.dto.announce.AnnounceDetailResponse;
 import org.codingtext.admin.dto.announce.AnnounceRequest;
 
 import org.codingtext.admin.dto.announce.AnnounceResponse;
+import org.codingtext.admin.dto.announce.AnnounceUpdateRequest;
 import org.codingtext.admin.error.ErrorResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PutMapping;
 
 
 @Tag(name = "Admin", description = "관리자 설정 API")
@@ -82,6 +84,29 @@ public interface AdminApi {
             }
     )
     ResponseEntity<?> createAnnounce(AnnounceRequest announceRequest);
+
+
+
+    @Operation(summary = "공지사항 수정",
+            description = "관리자가 공지사항을 수정합니다.",
+            requestBody = @RequestBody(
+                    description = "공지사항 수정 요청 데이터",
+                    required = true,
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnnounceUpdateRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "공지사항 수정 성공",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnnounceResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "요청한 관리자를 찾을 수 없습니다.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "서버 오류",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    ResponseEntity<?> updateAnnounce(AnnounceUpdateRequest announceUpdateRequest);
+
 
     @Operation(
             summary = "공지사항 목록 조회",

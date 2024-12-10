@@ -7,9 +7,7 @@ import org.codingtext.admin.domain.AdminRole;
 import org.codingtext.admin.domain.Announce;
 
 import org.codingtext.admin.dto.*;
-import org.codingtext.admin.dto.announce.AnnounceDetailResponse;
-import org.codingtext.admin.dto.announce.AnnounceRequest;
-import org.codingtext.admin.dto.announce.AnnounceResponse;
+import org.codingtext.admin.dto.announce.*;
 
 import org.codingtext.admin.error.exception.AdminNotFoundException;
 import org.codingtext.admin.error.exception.AnnounceNotFoundException;
@@ -22,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,20 +91,49 @@ public class AdminService {
     }
 
     @Transactional
-    public AnnounceResponse saveAnnounce(AnnounceRequest announceRequest) {
+    public AnnounceDetailResponse saveAnnounce(AnnounceRequest announceRequest) {
         Admin admin = adminRepository.findById(announceRequest.getAdminId())
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
 
+        // Base64 디코딩
+        String decodedContent = new String(Base64.getDecoder().decode(announceRequest.getContent()), StandardCharsets.UTF_8);
+
         Announce announce = announceRepository.save(Announce.builder()
                 .title(announceRequest.getTitle())
-                .content(announceRequest.getContent())
+                .content(decodedContent)
                 .admin(admin)
                 .build());
 
-        return AnnounceResponse.builder()
+        return AnnounceDetailResponse.builder()
                 .announceId(announce.getId())
                 .title(announce.getTitle())
+                .content(announceRequest.getContent())
                 .createdDate(announce.getCreatedAt().toLocalDate())
+                .build();
+    }
+
+    @Transactional
+    public AnnounceDetailResponse updateAnnounce(AnnounceUpdateRequest announceUpdateRequest) {
+        Admin admin = adminRepository.findById(announceUpdateRequest.getAdminId())
+                .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
+        // 기존의 공지사항을 찾습니다.
+        Announce announce = announceRepository.findById(announceUpdateRequest.getAnnounceId())
+                .orElseThrow(() -> new AnnounceNotFoundException("공지사항을 찾을 수 없습니다."));
+
+        // Base64 디코딩
+        String decodedContent = new String(Base64.getDecoder().decode(announceUpdateRequest.getContent()), StandardCharsets.UTF_8);
+
+        Announce updatedAnnounce = announceRepository.save(announce.toBuilder()
+                .title(announceUpdateRequest.getTitle())
+                .content(decodedContent)
+                .admin(admin)
+                .build());
+
+        return AnnounceDetailResponse.builder()
+                .announceId(updatedAnnounce.getId())
+                .title(updatedAnnounce.getTitle())
+                .content(announceUpdateRequest.getContent())
+                .createdDate(updatedAnnounce.getCreatedAt().toLocalDate())
                 .build();
     }
 
@@ -126,10 +155,13 @@ public class AdminService {
         Announce announce = announceRepository.findById(announceId)
                 .orElseThrow(() -> new AnnounceNotFoundException("공지사항이 없습니다."));
 
+        // Base64 인코딩
+        String encodedContent = Base64.getEncoder().encodeToString(announce.getContent().getBytes());
+
         return AnnounceDetailResponse.builder()
                 .announceId(announce.getId())
                 .title(announce.getTitle())
-                .content(announce.getContent())
+                .content(encodedContent)
                 .createdDate(announce.getCreatedAt().toLocalDate())
                 .build();
     }

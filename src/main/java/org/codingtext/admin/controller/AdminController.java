@@ -3,6 +3,7 @@ import lombok.RequiredArgsConstructor;
 import org.codingtext.admin.dto.announce.AnnounceRequest;
 import org.codingtext.admin.dto.PermitRequest;
 import org.codingtext.admin.dto.announce.AnnounceResponse;
+import org.codingtext.admin.dto.announce.AnnounceUpdateRequest;
 import org.codingtext.admin.service.AdminService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +41,11 @@ public class AdminController implements AdminApi{
     @PostMapping("/announce")
     public ResponseEntity<?> createAnnounce(@RequestBody AnnounceRequest announceRequest) {
         return ResponseEntity.ok(adminService.saveAnnounce(announceRequest));
+    }
+
+    @PutMapping("/announce")
+    public ResponseEntity<?> updateAnnounce(@RequestBody AnnounceUpdateRequest announceUpdateRequest) {
+        return ResponseEntity.ok(adminService.updateAnnounce(announceUpdateRequest));
     }
 
     @GetMapping("/announce")
