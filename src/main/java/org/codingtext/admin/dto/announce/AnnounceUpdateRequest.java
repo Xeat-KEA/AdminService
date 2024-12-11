@@ -17,8 +17,5 @@ public class AnnounceUpdateRequest {
 
     @Schema(description = "공지사항 내용", example = "2024년 첫 번째 공지사항 내용입니다.")
     private String content;
-
-    @Schema(description = "관리자 ID", example = "1")
-    private long adminId;
 }
 

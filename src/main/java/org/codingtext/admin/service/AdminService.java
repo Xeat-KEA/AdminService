@@ -91,8 +91,8 @@ public class AdminService {
     }
 
     @Transactional
-    public AnnounceDetailResponse saveAnnounce(AnnounceRequest announceRequest) {
-        Admin admin = adminRepository.findById(announceRequest.getAdminId())
+    public AnnounceDetailResponse saveAnnounce(String email, AnnounceRequest announceRequest) {
+        Admin admin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
 
         // Base64 디코딩
@@ -113,8 +113,8 @@ public class AdminService {
     }
 
     @Transactional
-    public AnnounceDetailResponse updateAnnounce(AnnounceUpdateRequest announceUpdateRequest) {
-        Admin admin = adminRepository.findById(announceUpdateRequest.getAdminId())
+    public AnnounceDetailResponse updateAnnounce(String email, AnnounceUpdateRequest announceUpdateRequest) {
+        Admin admin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
         Announce announce = announceRepository.findById(announceUpdateRequest.getAnnounceId())
                 .orElseThrow(() -> new AnnounceNotFoundException("공지사항을 찾을 수 없습니다."));

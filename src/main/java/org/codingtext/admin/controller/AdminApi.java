@@ -85,7 +85,7 @@ public interface AdminApi {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    ResponseEntity<?> createAnnounce(AnnounceRequest announceRequest);
+    ResponseEntity<?> createAnnounce(String email, AnnounceRequest announceRequest);
 
 
 
@@ -107,7 +107,7 @@ public interface AdminApi {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    ResponseEntity<?> updateAnnounce(AnnounceUpdateRequest announceUpdateRequest);
+    ResponseEntity<?> updateAnnounce(String email, AnnounceUpdateRequest announceUpdateRequest);
 
 
     @Operation(

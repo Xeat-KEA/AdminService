@@ -39,13 +39,17 @@ public class AdminController implements AdminApi{
     }
 
     @PostMapping("/announce")
-    public ResponseEntity<?> createAnnounce(@RequestBody AnnounceRequest announceRequest) {
-        return ResponseEntity.ok(adminService.saveAnnounce(announceRequest));
+    public ResponseEntity<?> createAnnounce(
+            @RequestHeader("Email") String email,
+            @RequestBody AnnounceRequest announceRequest) {
+        return ResponseEntity.ok(adminService.saveAnnounce(email, announceRequest));
     }
 
     @PutMapping("/announce")
-    public ResponseEntity<?> updateAnnounce(@RequestBody AnnounceUpdateRequest announceUpdateRequest) {
-        return ResponseEntity.ok(adminService.updateAnnounce(announceUpdateRequest));
+    public ResponseEntity<?> updateAnnounce(
+            @RequestHeader("Email") String email,
+            @RequestBody AnnounceUpdateRequest announceUpdateRequest) {
+        return ResponseEntity.ok(adminService.updateAnnounce(email, announceUpdateRequest));
     }
 
     @GetMapping("/announce")
