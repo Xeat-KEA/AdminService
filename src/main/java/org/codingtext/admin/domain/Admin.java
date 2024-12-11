@@ -33,6 +33,4 @@ public class Admin extends BaseEntity{
     // 연관관계를 위한 공지사항 리스트 필드 추가 (양방향 관계)
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Announce> announces;
-
-
 }

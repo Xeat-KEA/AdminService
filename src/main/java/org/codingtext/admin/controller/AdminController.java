@@ -60,4 +60,9 @@ public class AdminController implements AdminApi{
     public ResponseEntity<?> getAnnouncementDetails(@PathVariable long announceId){
         return ResponseEntity.ok(adminService.findAnnounceDetails(announceId));
     }
+
+    @DeleteMapping("/announce/{announceId}")
+    public ResponseEntity<?> deleteAnnounce(@PathVariable long announceId) {
+        return ResponseEntity.ok(adminService.deleteAnnounce(announceId));
+    }
 }

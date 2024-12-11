@@ -164,4 +164,18 @@ public class AdminService {
                 .createdDate(announce.getCreatedAt().toLocalDate())
                 .build();
     }
+
+    @Transactional
+    public AnnounceResponse deleteAnnounce(long announceId) {
+        Announce announce = announceRepository.findById(announceId)
+                .orElseThrow(() -> new AnnounceNotFoundException("공지사항을 찾을 수 없습니다."));
+
+        announceRepository.delete(announce);
+
+        return AnnounceResponse.builder()
+                .announceId(announceId)
+                .title(announce.getTitle())
+                .createdDate(announce.getCreatedAt().toLocalDate())
+                .build();
+    }
 }
