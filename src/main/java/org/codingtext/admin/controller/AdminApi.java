@@ -20,6 +20,8 @@ import org.codingtext.admin.dto.announce.AnnounceUpdateRequest;
 import org.codingtext.admin.error.ErrorResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
@@ -136,5 +138,20 @@ public interface AdminApi {
             }
     )
     ResponseEntity<?> getAnnouncementDetails(long announceId);
+
+
+    @Operation(summary = "공지사항 삭제",
+            description = "관리자가 공지사항 삭제한다.",
+            parameters = @Parameter(name = "announceId", description = "삭제할 공지사항 ID", required = true, schema = @Schema(type = "long")),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "공지사항 식제 성공",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnnounceDetailResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "공지사항을 찾을 수 없음",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "서버 오류",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    ResponseEntity<?> deleteAnnounce(long announceId);
 }
 
