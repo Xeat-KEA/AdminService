@@ -116,7 +116,6 @@ public class AdminService {
     public AnnounceDetailResponse updateAnnounce(AnnounceUpdateRequest announceUpdateRequest) {
         Admin admin = adminRepository.findById(announceUpdateRequest.getAdminId())
                 .orElseThrow(() -> new AdminNotFoundException("요청한 관리자를 찾을 수 없습니다."));
-        // 기존의 공지사항을 찾습니다.
         Announce announce = announceRepository.findById(announceUpdateRequest.getAnnounceId())
                 .orElseThrow(() -> new AnnounceNotFoundException("공지사항을 찾을 수 없습니다."));
 
@@ -133,7 +132,7 @@ public class AdminService {
                 .announceId(updatedAnnounce.getId())
                 .title(updatedAnnounce.getTitle())
                 .content(announceUpdateRequest.getContent())
-                .createdDate(updatedAnnounce.getCreatedAt().toLocalDate())
+                .createdDate(announce.getCreatedAt().toLocalDate())
                 .build();
     }
 
