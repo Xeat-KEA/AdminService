@@ -57,7 +57,7 @@ public class AdminController implements AdminApi{
     public ResponseEntity<Page<AnnounceResponse>> getAnnouncements(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("id")));
         return ResponseEntity.ok(adminService.findAnnouncements(pageable));
     }
 
